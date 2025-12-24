@@ -13,6 +13,11 @@ if exist delta.lst (
   ren delta.lst delta.old.lst
 )
 
+if exist .\gfx\shell\kb_act.lst (
+  echo Renaming gfx/shell/kb_act.lst to gfx/shell/kb_act.old.lst ...
+  ren .\gfx\shell\kb_act.lst kb_act.old.lst
+)
+
 echo Setup successfully completed
 
 endlocal
