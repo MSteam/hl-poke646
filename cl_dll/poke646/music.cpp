@@ -105,16 +105,47 @@ BOOL Music::PlayMapMusic(const char* mapname)
         // Stop any MP3 soundtrack playing.
         EngineClientCmd("mp3 stop\n");
 
-        char command[128] = {};
-        if (psndtrack->repeat)
-            std::snprintf(command, ARRAYSIZE(command), "mp3 loop media/%s\n", psndtrack->musicpath);
+        // The original Poke646 release ships its tracks under sound/<path>,
+        // but the reimplementation expects them under media/<path>. Probe both
+        // locations; if neither has the track, refuse to play anything rather
+        // than letting the engine fall back to some random file.
+        const char* gamedir = gEngfuncs.pfnGetGameDirectory();
+        const char* base_dir = nullptr;
+        char probe[256] = {};
+
+        std::snprintf(probe, ARRAYSIZE(probe), "%s/sound/%s", gamedir, psndtrack->musicpath);
+        if (FILE* fp = std::fopen(probe, "rb"))
+        {
+            std::fclose(fp);
+            base_dir = "sound";
+        }
         else
-            std::snprintf(command, ARRAYSIZE(command), "mp3 play media/%s\n", psndtrack->musicpath);
+        {
+            std::snprintf(probe, ARRAYSIZE(probe), "%s/media/%s", gamedir, psndtrack->musicpath);
+            if (FILE* fp2 = std::fopen(probe, "rb"))
+            {
+                std::fclose(fp2);
+                base_dir = "media";
+            }
+        }
+
+        if (!base_dir)
+        {
+            gEngfuncs.Con_Printf("Poke646 MP3-Player: track not found in sound/%s or media/%s; nothing will play.\n",
+                                 psndtrack->musicpath, psndtrack->musicpath);
+            return FALSE;
+        }
+
+        char command[128] = {};
+        std::snprintf(command, ARRAYSIZE(command), "mp3 %s %s/%s\n",
+                      psndtrack->repeat ? "loop" : "play",
+                      base_dir, psndtrack->musicpath);
 
         // Play MP3 soundtrack.
         EngineClientCmd(command);
 
-        gEngfuncs.Con_Printf("Poke646 MP3-Player is now playing: media/%s\n", psndtrack->musicpath);
+        gEngfuncs.Con_Printf("Poke646 MP3-Player is now playing: %s/%s\n",
+                             base_dir, psndtrack->musicpath);
 
         return TRUE;
     }
