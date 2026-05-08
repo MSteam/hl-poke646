@@ -54,14 +54,12 @@ typedef int BOOL;
 #define MAX_PATH PATH_MAX
 #include <limits.h>
 #include <stdarg.h>
-#include <string.h> // memset 
-#ifndef min
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-#define max(a,b)  (((a) > (b)) ? (a) : (b))
+#include <string.h> // memset
+// The mod source uses std::min / std::max from <algorithm>; do NOT define
+// min/max as preprocessor macros here, as that breaks every C++ standard
+// header that has min/max member functions (<limits>, <algorithm>, ...).
+#include <algorithm>
 #define _vsnprintf(a,b,c,d) vsnprintf(a,b,c,d)
-#endif
 #endif //_WIN32
 
 // Misc C-runtime library headers
@@ -69,8 +67,8 @@ typedef int BOOL;
 #include <cstdlib>
 #include <cmath>
 
-#include <algorithm> // For min/max
 #include <cctype>
+#include <limits>
 
 // Header file containing definition of globalvars_t and entvars_t
 typedef unsigned int func_t;					//

@@ -13,6 +13,7 @@
 *
 ****/
 #include "archtypes.h"     // DAL
+#include <cstring>
 
 //
 // Misc utility code

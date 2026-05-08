@@ -25,6 +25,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <limits>
 
 #include "ammohistory.h"
 #include "vgui_TeamFortressViewport.h"

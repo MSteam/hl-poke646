@@ -1538,12 +1538,16 @@ void CBasePlayerWeapon::PrintState( void )
 }
 
 
-TYPEDESCRIPTION	CRpg::m_SaveData[] = 
+#if 0 // Poke646 - No RPG. (defining CRpg's save/restore here would force GCC
+      // to emit the CRpg vtable, which references CRpg::Spawn() etc. — those
+      // are #if 0'd out in rpg.cpp, so the link would have undefined symbols.)
+TYPEDESCRIPTION	CRpg::m_SaveData[] =
 {
 	DEFINE_FIELD( CRpg, m_fSpotActive, FIELD_INTEGER ),
 	DEFINE_FIELD( CRpg, m_cActiveRockets, FIELD_INTEGER ),
 };
 IMPLEMENT_SAVERESTORE( CRpg, CBasePlayerWeapon );
+#endif // Poke646 - No RPG.
 
 TYPEDESCRIPTION	CRpgRocket::m_SaveData[] = 
 {
@@ -1573,7 +1577,10 @@ TYPEDESCRIPTION	CGauss::m_SaveData[] =
 };
 IMPLEMENT_SAVERESTORE( CGauss, CBasePlayerWeapon );
 
-TYPEDESCRIPTION	CEgon::m_SaveData[] = 
+#if 0 // Poke646 - No egon. (CEgon::Spawn et al are #if 0'd out in egon.cpp,
+      // so emitting CEgon's save/restore here would force the vtable and
+      // produce undefined symbols at link time.)
+TYPEDESCRIPTION	CEgon::m_SaveData[] =
 {
 //	DEFINE_FIELD( CEgon, m_pBeam, FIELD_CLASSPTR ),
 //	DEFINE_FIELD( CEgon, m_pNoise, FIELD_CLASSPTR ),
@@ -1585,6 +1592,7 @@ TYPEDESCRIPTION	CEgon::m_SaveData[] =
 	DEFINE_FIELD( CEgon, m_flAmmoUseTime, FIELD_TIME ),
 };
 IMPLEMENT_SAVERESTORE( CEgon, CBasePlayerWeapon );
+#endif // Poke646 - No egon.
 
 TYPEDESCRIPTION	CSatchel::m_SaveData[] = 
 {
