@@ -71,7 +71,7 @@ BASE_CFLAGS  := $(ARCH_FLAGS) $(OPT_FLAGS) $(BASE_DEFS) $(WARN_FLAGS) $(LANG_FLA
 C_STD   := -std=gnu11
 CXX_STD := -std=gnu++14
 SHLIB_FLAGS  := -shared
-SHLIB_LDFLAGS := $(ARCH_FLAGS) -shared -Wl,-Bsymbolic
+SHLIB_LDFLAGS := $(ARCH_FLAGS) -shared -Wl,-Bsymbolic -Wl,--no-undefined
 
 # -----------------------------------------------------------------------------
 # Server library (hl.so)
