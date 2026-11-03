@@ -168,12 +168,18 @@ int CHudScope::DrawScope(void)
 	if (!(m_iFlags & HUD_ACTIVE))
 		return 1;
 
-	// The scope was designed for 4:3, where it spans the full screen width and
-	// is cropped at the top and bottom. Keep that size on wider screens by
-	// limiting the width to a centered 4:3 area.
-	int size = ScreenHeight * 4 / 3;
-	if (size > ScreenWidth)
-		size = ScreenWidth;
+	// The scope was designed for 4:3. Lay it out relative to a centered 4:3
+	// area so it looks the same on wider screens.
+	int areaWidth = ScreenHeight * 4 / 3;
+	if (areaWidth > ScreenWidth)
+		areaWidth = ScreenWidth;
+	int areaHeight = areaWidth * 3 / 4;
+	int areaX = (ScreenWidth - areaWidth) / 2;
+	int areaY = (ScreenHeight - areaHeight) / 2;
+
+	// The original drew the scope 10 units in front of the view with a half
+	// size of 11 * tan(fov / 2), i.e. 10% wider than the 4:3 screen.
+	int size = areaWidth * 11 / 10;
 	int halfSize = size / 2;
 	size = halfSize * 2;
 
@@ -218,21 +224,24 @@ int CHudScope::DrawScope(void)
 	pmtrace_t * trace = gEngfuncs.PM_TraceLine(v_origin, forward, PM_TRACELINE_PHYSENTSONLY, 2, -1);
 
 	float dist = (trace->endpos - v_origin).Length();
-	// Assuming 1 foot is roughly equal to 12 hammer units, convert to meters. 
-	float meters = (dist / 12.0f) * 0.3048f;
 
+	// 1 unit = 1 inch, as in the original.
 	char szDistance[16] = {};
-	if (meters < 3)
-		std::strcpy(szDistance, "-,-- m");
+	if (dist < 118)
+		std::strcpy(szDistance, "-.-- m");
 	else
-		std::snprintf(szDistance, sizeof(szDistance), "%.2f m", meters);
+		std::snprintf(szDistance, sizeof(szDistance), "%.2f m", dist * 0.0254f);
 
-	// Keep the original 4:3 placement relative to the scope.
-	int x = ScreenWidth / 2 + size / 4;
-	int y = ScreenHeight / 2 - size * 3 / 128;
+	// The original right-aligns the text at 82% of the screen width, with its
+	// bottom at 49% of the screen height.
+	int textWidth = 0, textHeight = 0;
+	GetConsoleStringSize(szDistance, &textWidth, &textHeight);
+
+	int x = areaX + areaWidth * 82 / 100 - textWidth;
+	int y = areaY + areaHeight * 49 / 100 - textHeight;
 
 	// Draw distance.
-	gEngfuncs.pfnDrawSetTextColor(1, 0.35, 0.35);
+	gEngfuncs.pfnDrawSetTextColor(1, 0.25, 0.25);
 	DrawConsoleString(x, y, szDistance);
 
 	return 1;
